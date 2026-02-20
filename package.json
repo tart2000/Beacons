@@ -12,7 +12,8 @@
     "@astrojs/tailwind": "^6.0.2",
     "astro": "^4.16.0",
     "notion-to-md": "^3.1.9",
-    "tailwindcss": "^3.4.19"
+    "tailwindcss": "^3.4.19",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@notionhq/client": "^2.2.15",

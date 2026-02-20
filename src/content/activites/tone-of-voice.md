@@ -67,16 +67,16 @@ Une fois que vous avez les adjectifs, il faut les transformer pour les rendre co
 ## Exemples inspirants 
 
 
-[bookmark](https://styleguide.mailchimp.com/writing-about-people/)
+[https://styleguide.mailchimp.com/writing-about-people/](https://styleguide.mailchimp.com/writing-about-people/)
 
 
-[bookmark](https://developers.google.com/style/tone)
+[https://developers.google.com/style/tone](https://developers.google.com/style/tone)
 
 
-[bookmark](https://brand.dropbox.com/voice-and-tone)
+[https://brand.dropbox.com/voice-and-tone](https://brand.dropbox.com/voice-and-tone)
 
 
-[bookmark](https://spectrum.adobe.com/page/voice-and-tone/)
+[https://spectrum.adobe.com/page/voice-and-tone/](https://spectrum.adobe.com/page/voice-and-tone/)
 
 
-[bookmark](https://monzo.com/tone-of-voice)
+[https://monzo.com/tone-of-voice](https://monzo.com/tone-of-voice)

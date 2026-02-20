@@ -22,7 +22,7 @@ Selon les besoins du projet, vous pouvez aussi vous appuyer sur des sondages pou
 Allez voir cette fiche pour réaliser votre conducteur d'entretien : 
 
 
-[Lien](https://www.notion.so/2a8be611-ccad-4a30-98c6-03a1ce2bce38)
+[Conducteur d’entretien](/activite/conducteur-d-entretien)
 
 
 ## Bonnes pratiques 
