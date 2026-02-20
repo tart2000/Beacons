@@ -98,6 +98,11 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={title} />
+    <meta property="og:image" content={new URL(import.meta.env.BASE_URL + 'cover.png', import.meta.env.SITE).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={new URL(import.meta.env.BASE_URL + 'cover.png', import.meta.env.SITE).href} />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%233d2c5c' width='32' height='32' rx='4'/></svg>" type="image/svg+xml" />
     <title>{title}</title>
   </head>
@@ -235,7 +240,7 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
                 <button type="button" class="absolute right-4 top-4 text-white/90 hover:text-white" aria-label="Fermer">✕</button>
                 <img id="exemples-lightbox-img" src="" alt="" class="max-h-[90vh] max-w-full rounded-lg object-contain" />
               </div>
-              <div class="columns-3 gap-4">
+              <div class="columns-1 md:columns-3 gap-4">
                 {exemplesList.map((url) => (
                   <button
                     type="button"
