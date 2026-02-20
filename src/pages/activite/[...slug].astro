@@ -81,9 +81,12 @@ const hasTemplates = templatesList.length > 0;
 const hasOutils = outils.length > 0;
 const hasExemples = exemplesList.length > 0;
 const hasIcon = icon && icon.length > 0;
-const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('https://'));
+const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('https://') || icon.startsWith('/'));
 const coverImage = entry.data.image;
-const hasCover = coverImage && coverImage.startsWith('http');
+const hasCover = coverImage && (coverImage.startsWith('http') || coverImage.startsWith('/'));
+const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+const coverSrc = coverImage?.startsWith('/') ? base + coverImage : coverImage;
+const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? base + icon : icon;
 ---
 
 <html lang="fr">
@@ -98,7 +101,7 @@ const hasCover = coverImage && coverImage.startsWith('http');
     <header class="relative w-full overflow-hidden">
       {hasCover ? (
         <img
-          src={coverImage}
+          src={coverSrc}
           alt=""
           class="h-48 w-full object-cover sm:h-56"
         />
@@ -126,7 +129,7 @@ const hasCover = coverImage && coverImage.startsWith('http');
             {hasIcon ? (
               iconIsUrl ? (
                 <img
-                  src={icon}
+                  src={iconSrc || icon}
                   alt=""
                   class="h-full w-full object-cover"
                 />

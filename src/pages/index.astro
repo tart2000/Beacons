@@ -20,7 +20,8 @@ for (const entry of activites) {
     }
   }
 }
-const allObjectifs = Array.from(objectifsSet).sort();
+const PILL_ORDER = ['Comprendre', 'Concevoir', 'Tester', 'Communiquer'];
+const allObjectifs = PILL_ORDER.filter((o) => objectifsSet.has(o));
 
 const PILL_COLORS = [
   'bg-pink-200 text-pink-800',
@@ -41,7 +42,7 @@ const PILL_COLORS = [
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%233d2c5c' width='32' height='32' rx='4'/></svg>" type="image/svg+xml" />
     <title>Activités</title>
   </head>
-  <body class="bg-white text-gray-800 antialiased">
+  <body class="text-gray-800 antialiased" style="background-color: rgb(255, 239, 230);">
     <div class="mx-auto max-w-6xl px-6 py-12">
       <h1 class="font-serif text-3xl font-bold text-guide-purple">Activités</h1>
 
@@ -81,8 +82,11 @@ const PILL_COLORS = [
             }
             const objectifsList = Array.isArray(objs) ? objs : [];
             const hasIcon = icon && icon.length > 0;
-            const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('https://'));
-            const hasCover = cover && cover.startsWith('http');
+            const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('https://') || icon.startsWith('/'));
+            const hasCover = cover && (cover.startsWith('http') || cover.startsWith('/'));
+            const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+            const coverSrc = cover?.startsWith('/') ? base + cover : cover;
+            const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? base + icon : icon;
             return (
               <a
                 href={`${import.meta.env.BASE_URL}activite/${entry.slug}`}
@@ -93,7 +97,7 @@ const PILL_COLORS = [
                 <div class="relative h-52 overflow-hidden rounded-t-2xl">
                   {hasCover ? (
                     <img
-                      src={cover}
+                      src={coverSrc}
                       alt=""
                       class="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
                     />
@@ -112,7 +116,7 @@ const PILL_COLORS = [
                   >
                     {hasIcon ? (
                       iconIsUrl ? (
-                        <img src={icon} alt="" class="h-full w-full object-cover" />
+                        <img src={iconSrc || icon} alt="" class="h-full w-full object-cover" />
                       ) : (
                         <span class="text-2xl">{icon}</span>
                       )

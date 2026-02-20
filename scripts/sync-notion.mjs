@@ -14,6 +14,36 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const CONTENT_DIR = join(ROOT, 'src', 'content', 'activites');
 const OUTILS_DIR = join(ROOT, 'src', 'content', 'outils');
+const PUBLIC_ACTIVITES = join(ROOT, 'public', 'activites');
+
+function isNotionS3Url(url) {
+  if (!url || typeof url !== 'string') return false;
+  return url.includes('prod-files-secure.s3') || (url.includes('amazonaws') && url.includes('X-Amz-'));
+}
+
+function extFromUrl(url) {
+  try {
+    const pathname = new URL(url).pathname;
+    const match = pathname.match(/\.(jpe?g|png|gif|webp|svg)(\?|$)/i);
+    return match ? match[1].toLowerCase() : 'jpg';
+  } catch (_) {
+    return 'jpg';
+  }
+}
+
+async function downloadToLocal(url, filepath) {
+  try {
+    const res = await fetch(url, { redirect: 'follow' });
+    if (!res.ok) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    mkdirSync(dirname(filepath), { recursive: true });
+    writeFileSync(filepath, buf);
+    return true;
+  } catch (e) {
+    console.warn('Download failed', url.slice(0, 60) + '…', e.message);
+    return null;
+  }
+}
 
 // Load .env manually (no dotenv dependency required for minimal; we use it if present)
 function loadEnv() {
@@ -256,6 +286,7 @@ async function main() {
 
   mkdirSync(CONTENT_DIR, { recursive: true });
   mkdirSync(OUTILS_DIR, { recursive: true });
+  mkdirSync(PUBLIC_ACTIVITES, { recursive: true });
 
   const toolIdToSlug = new Map();
   const allowedToolSlugs = new Set();
@@ -320,8 +351,25 @@ async function main() {
     const title = extractTitle(page.properties);
     const slug = slugify(title);
 
-    const coverUrl = getCoverUrl(page);
-    const iconValue = getIcon(page);
+    let coverUrl = getCoverUrl(page);
+    let iconValue = getIcon(page);
+
+    if (coverUrl && isNotionS3Url(coverUrl)) {
+      const ext = extFromUrl(coverUrl);
+      const localName = `${slug}-cover.${ext}`;
+      const localPath = join(PUBLIC_ACTIVITES, localName);
+      if (await downloadToLocal(coverUrl, localPath)) {
+        coverUrl = '/activites/' + localName;
+      }
+    }
+    if (iconValue && typeof iconValue === 'string' && (iconValue.startsWith('http://') || iconValue.startsWith('https://')) && isNotionS3Url(iconValue)) {
+      const ext = extFromUrl(iconValue);
+      const localName = `${slug}-icon.${ext}`;
+      const localPath = join(PUBLIC_ACTIVITES, localName);
+      if (await downloadToLocal(iconValue, localPath)) {
+        iconValue = '/activites/' + localName;
+      }
+    }
 
     const outilsSlugs = [];
     let relationIds = [];
