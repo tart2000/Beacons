@@ -85,8 +85,13 @@ const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('htt
 const coverImage = entry.data.image;
 const hasCover = coverImage && (coverImage.startsWith('http') || coverImage.startsWith('/'));
 const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-const coverSrc = coverImage?.startsWith('/') ? base + coverImage : coverImage;
-const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? base + icon : icon;
+function ensureHttps(u: string | undefined) {
+  if (!u || typeof u !== 'string') return u;
+  if (u.startsWith('http://')) return 'https://' + u.slice(7);
+  return u;
+}
+const coverSrc = coverImage?.startsWith('/') ? base + coverImage : ensureHttps(coverImage);
+const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? base + icon : ensureHttps(icon);
 ---
 
 <html lang="fr">
@@ -157,7 +162,7 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
                       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M213.66 82.34l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.34-5.66ZM160 51.31 188.69 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48Z"/></svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                      <a href={t.url} download={t.name} target="_blank" rel="noopener noreferrer" class="text-sm text-gray-700 hover:text-guide-purple">{t.name}</a>
+                      <a href={ensureHttps(t.url)} download={t.name} target="_blank" rel="noopener noreferrer" class="text-sm text-gray-700 hover:text-guide-purple">{t.name}</a>
                     </div>
                   </li>
                 ))}
@@ -177,7 +182,7 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
                   <li class="flex items-center gap-3">
                     {hasOutilIcon ? (
                       outilIconIsUrl ? (
-                        <img src={o.icon} alt="" class="h-8 w-8 shrink-0 rounded object-cover" />
+                        <img src={ensureHttps(o.icon)} alt="" class="h-8 w-8 shrink-0 rounded object-cover" />
                       ) : (
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-guide-beige text-lg">{o.icon}</span>
                       )
@@ -186,7 +191,7 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
                     )}
                     <div class="min-w-0 flex-1">
                       {o.url ? (
-                        <a href={o.url} target="_blank" rel="noopener noreferrer" class="text-sm text-gray-700 hover:text-guide-purple">{o.name}</a>
+                        <a href={ensureHttps(o.url)} target="_blank" rel="noopener noreferrer" class="text-sm text-gray-700 hover:text-guide-purple">{o.name}</a>
                       ) : (
                         <span class="text-sm text-gray-700">{o.name}</span>
                       )}
@@ -235,10 +240,10 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
                   <button
                     type="button"
                     class="break-inside-avoid mb-4 w-full overflow-hidden rounded-lg bg-guide-sand text-left transition hover:opacity-90"
-                    data-exemple-src={url}
+                    data-exemple-src={ensureHttps(url)}
                   >
                     <img
-                      src={url}
+                      src={ensureHttps(url)}
                       alt=""
                       class="w-full object-cover"
                       loading="lazy"

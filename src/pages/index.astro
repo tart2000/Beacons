@@ -33,6 +33,12 @@ const PILL_COLORS = [
   'bg-teal-200 text-teal-800',
   'bg-lime-200 text-lime-800',
 ];
+
+function ensureHttps(u: string | undefined) {
+  if (!u || typeof u !== 'string') return u;
+  if (u.startsWith('http://')) return 'https://' + u.slice(7);
+  return u;
+}
 ---
 
 <html lang="fr">
@@ -85,8 +91,8 @@ const PILL_COLORS = [
             const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('https://') || icon.startsWith('/'));
             const hasCover = cover && (cover.startsWith('http') || cover.startsWith('/'));
             const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-            const coverSrc = cover?.startsWith('/') ? base + cover : cover;
-            const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? base + icon : icon;
+            const coverSrc = cover?.startsWith('/') ? base + cover : ensureHttps(cover);
+            const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? base + icon : ensureHttps(icon);
             return (
               <a
                 href={`${import.meta.env.BASE_URL}activite/${entry.slug}`}
