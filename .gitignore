@@ -2,7 +2,6 @@
 node_modules
 
 # build
-dist
 .astro
 
 # env
@@ -14,6 +13,4 @@ dist
 .DS_Store
 *.log
 node_modules/
-dist/
-.env
 .DS_Store
