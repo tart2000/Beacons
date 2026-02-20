@@ -182,12 +182,13 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
               <ul class="space-y-3">
                 {outils.map((o) => {
                   const hasOutilIcon = o.icon && o.icon.length > 0;
-                  const outilIconIsUrl = hasOutilIcon && (o.icon!.startsWith('http://') || o.icon!.startsWith('https://'));
+                  const outilIconIsUrl = hasOutilIcon && (o.icon!.startsWith('http://') || o.icon!.startsWith('https://') || o.icon!.startsWith('/'));
+                  const outilIconSrc = hasOutilIcon && typeof o.icon === 'string' && o.icon.startsWith('/') ? base + o.icon : ensureHttps(o.icon);
                   return (
                   <li class="flex items-center gap-3">
                     {hasOutilIcon ? (
                       outilIconIsUrl ? (
-                        <img src={ensureHttps(o.icon)} alt="" class="h-8 w-8 shrink-0 rounded object-cover" />
+                        <img src={outilIconSrc || o.icon} alt="" class="h-8 w-8 shrink-0 rounded object-cover" />
                       ) : (
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-guide-beige text-lg">{o.icon}</span>
                       )

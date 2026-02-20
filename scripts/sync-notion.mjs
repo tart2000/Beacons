@@ -15,6 +15,7 @@ const ROOT = join(__dirname, '..');
 const CONTENT_DIR = join(ROOT, 'src', 'content', 'activites');
 const OUTILS_DIR = join(ROOT, 'src', 'content', 'outils');
 const PUBLIC_ACTIVITES = join(ROOT, 'public', 'activites');
+const PUBLIC_OUTILS = join(ROOT, 'public', 'outils');
 
 function isNotionS3Url(url) {
   if (!url || typeof url !== 'string') return false;
@@ -287,6 +288,7 @@ async function main() {
   mkdirSync(CONTENT_DIR, { recursive: true });
   mkdirSync(OUTILS_DIR, { recursive: true });
   mkdirSync(PUBLIC_ACTIVITES, { recursive: true });
+  mkdirSync(PUBLIC_OUTILS, { recursive: true });
 
   const toolIdToSlug = new Map();
   const allowedToolSlugs = new Set();
@@ -295,7 +297,15 @@ async function main() {
     const title = extractTitle(toolPage.properties);
     const slug = slugify(title);
     const url = extractUrl(toolPage.properties);
-    const icon = getIcon(toolPage);
+    let icon = getIcon(toolPage);
+    if (icon && typeof icon === 'string' && (icon.startsWith('http://') || icon.startsWith('https://')) && isNotionS3Url(icon)) {
+      const ext = extFromUrl(icon);
+      const localName = `${slug}-icon.${ext}`;
+      const localPath = join(PUBLIC_OUTILS, localName);
+      if (await downloadToLocal(icon, localPath)) {
+        icon = '/outils/' + localName;
+      }
+    }
     toolIdToSlug.set(id, slug);
     allowedToolSlugs.add(slug);
     const frontmatterLines = [`title: ${JSON.stringify(title)}`];
