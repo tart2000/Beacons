@@ -1,0 +1,189 @@
+---
+import { getCollection } from 'astro:content';
+
+const activites = await getCollection('activites');
+
+// Tous les objectifs uniques (pour les pills de filtre)
+const objectifsSet = new Set<string>();
+for (const entry of activites) {
+  let objs = entry.data.objectifs;
+  if (typeof objs === 'string') {
+    try {
+      objs = JSON.parse(objs);
+    } catch (_) {
+      objs = [];
+    }
+  }
+  if (Array.isArray(objs)) {
+    for (const o of objs) {
+      if (o && typeof o === 'string') objectifsSet.add(o);
+    }
+  }
+}
+const allObjectifs = Array.from(objectifsSet).sort();
+
+const PILL_COLORS = [
+  'bg-pink-200 text-pink-800',
+  'bg-violet-200 text-violet-800',
+  'bg-sky-200 text-sky-800',
+  'bg-amber-200 text-amber-800',
+  'bg-emerald-200 text-emerald-800',
+  'bg-rose-200 text-rose-800',
+  'bg-teal-200 text-teal-800',
+  'bg-lime-200 text-lime-800',
+];
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Activités</title>
+  </head>
+  <body class="bg-white text-gray-800 antialiased">
+    <div class="mx-auto max-w-6xl px-6 py-12">
+      <h1 class="font-serif text-3xl font-bold text-guide-purple">Activités</h1>
+
+      <!-- Pills Objectif + bouton réinitialiser -->
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        {allObjectifs.map((obj, i) => (
+          <button
+            type="button"
+            class={`filter-pill rounded-full px-3 py-1.5 text-sm font-medium transition ${PILL_COLORS[i % PILL_COLORS.length]} hover:opacity-90`}
+            data-filter={obj}
+          >
+            {obj}
+          </button>
+        ))}
+        <button
+          type="button"
+          id="filter-clear"
+          class="filter-clear ml-1 hidden h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-400 hover:text-gray-600 transition-colors"
+          aria-label="Afficher toutes les activités"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208.49 191.51a12 12 0 0 0-17 17L128 145l-63.51 63.49a12 12 0 0 1-17-17L111 128 47.51 64.49a12 12 0 0 1 17-17L128 111l63.51-63.52a12 12 0 0 1 17 17L145 128Z"/></svg>
+        </button>
+      </div>
+
+      <div id="activites-grid" class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          activites.map((entry) => {
+            const icon = entry.data.icon;
+            const cover = entry.data.image;
+            let objs = entry.data.objectifs;
+            if (typeof objs === 'string') {
+              try {
+                objs = JSON.parse(objs);
+              } catch (_) {
+                objs = [];
+              }
+            }
+            const objectifsList = Array.isArray(objs) ? objs : [];
+            const hasIcon = icon && icon.length > 0;
+            const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('https://'));
+            const hasCover = cover && cover.startsWith('http');
+            return (
+              <a
+                href={`/activite/${entry.slug}`}
+                class="activity-card group block overflow-visible rounded-2xl border border-gray-200 bg-white transition hover:border-gray-300"
+                data-objectifs={JSON.stringify(objectifsList)}
+              >
+                <!-- Cover en fond -->
+                <div class="relative h-52 overflow-hidden rounded-t-2xl">
+                  {hasCover ? (
+                    <img
+                      src={cover}
+                      alt=""
+                      class="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div class="absolute inset-0 bg-guide-beige" />
+                  )}
+                </div>
+                <!-- Footer : icône à cheval 50% sur la cover, blanc égal au-dessus et en dessous du titre -->
+                <div class="relative flex items-center gap-3 bg-white px-4 py-2 rounded-b-2xl">
+                  {/* Placeholder : hauteur = partie de l'icône dans le footer (2.5rem) */}
+                  <div class="h-10 w-20 shrink-0" aria-hidden="true" />
+                  {/* Icône taille normale, à cheval 50% (top: -2.5rem = 50% de h-20) */}
+                  <div
+                    class="absolute left-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-guide-sand"
+                    style="top: -2.5rem;"
+                  >
+                    {hasIcon ? (
+                      iconIsUrl ? (
+                        <img src={icon} alt="" class="h-full w-full object-cover" />
+                      ) : (
+                        <span class="text-2xl">{icon}</span>
+                      )
+                    ) : (
+                      <span class="font-serif text-xl font-bold text-guide-purple">
+                        {entry.data.title.charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  <h2 class="min-w-0 flex-1 text-lg font-semibold leading-tight text-gray-800 line-clamp-2">
+                    {entry.data.title}
+                  </h2>
+                </div>
+              </a>
+            );
+          })
+        }
+      </div>
+    </div>
+
+    <style>
+      .filter-pill.selected {
+        box-shadow: 0 0 0 2px #3d2c5c;
+      }
+    </style>
+    <script is:inline>
+      (function () {
+        const grid = document.getElementById('activites-grid');
+        const cards = grid ? Array.from(grid.querySelectorAll('.activity-card')) : [];
+        const pills = document.querySelectorAll('.filter-pill');
+        const clearBtn = document.getElementById('filter-clear');
+
+        function getObjectifs(el) {
+          try {
+            const raw = el.getAttribute('data-objectifs');
+            return raw ? JSON.parse(raw) : [];
+          } catch (_) {
+            return [];
+          }
+        }
+
+        function setFilter(selectedObj) {
+          pills.forEach(function (pill) {
+            if (pill.dataset.filter === selectedObj) {
+              pill.classList.add('selected');
+            } else {
+              pill.classList.remove('selected');
+            }
+          });
+          cards.forEach(function (card) {
+            const objs = getObjectifs(card);
+            const show = !selectedObj || objs.includes(selectedObj);
+            card.style.display = show ? '' : 'none';
+          });
+          if (clearBtn) clearBtn.classList.remove('hidden');
+        }
+
+        function clearFilter() {
+          pills.forEach(function (p) { p.classList.remove('selected'); });
+          cards.forEach(function (c) { c.style.display = ''; });
+          if (clearBtn) clearBtn.classList.add('hidden');
+        }
+
+        pills.forEach(function (pill) {
+          pill.addEventListener('click', function () {
+            setFilter(pill.dataset.filter);
+          });
+        });
+        if (clearBtn) {
+          clearBtn.addEventListener('click', clearFilter);
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "web-challenges",
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "sync": "node scripts/sync-notion.mjs",
+    "build": "npm run sync && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^4.16.0",
+    "notion-to-md": "^3.1.9",
+    "tailwindcss": "^3.4.19"
+  },
+  "devDependencies": {
+    "@notionhq/client": "^2.2.15",
+    "@tailwindcss/typography": "^0.5.19",
+    "dotenv": "^16.4.5"
+  }
+}

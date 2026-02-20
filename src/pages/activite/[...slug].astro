@@ -1,0 +1,277 @@
+---
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const activites = await getCollection('activites');
+  return activites.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const { title, icon, baseline, category, exemples } = entry.data;
+let templatesRaw = entry.data.templates;
+let templatesList = Array.isArray(templatesRaw) ? templatesRaw : [];
+if (typeof templatesRaw === 'string') {
+  try {
+    const parsed = JSON.parse(templatesRaw);
+    templatesList = Array.isArray(parsed) ? parsed : [];
+  } catch (_) {}
+}
+// Normaliser: ancien format string[] → { name, url }[]
+templatesList = templatesList.map((t) =>
+  typeof t === 'string' ? { name: t, url: '#' } : t
+).filter((t) => t && t.name && t.url);
+
+let objectifs = entry.data.objectifs;
+if (typeof objectifs === 'string') {
+  try {
+    objectifs = JSON.parse(objectifs);
+  } catch (_) {
+    objectifs = [];
+  }
+}
+if (!Array.isArray(objectifs)) objectifs = [];
+
+const outilsRaw = entry.data.outils;
+let outilsSlugsOrLegacy = Array.isArray(outilsRaw) ? outilsRaw : [];
+if (typeof outilsRaw === 'string') {
+  try {
+    const parsed = JSON.parse(outilsRaw);
+    outilsSlugsOrLegacy = Array.isArray(parsed) ? parsed : [];
+  } catch (_) {}
+}
+const allOutils = await getCollection('outils');
+const outilsBySlug = new Map(allOutils.map((o) => [o.slug, o]));
+const outils = outilsSlugsOrLegacy
+  .map((item) => {
+    if (typeof item === 'string') {
+      const toolEntry = outilsBySlug.get(item);
+      return toolEntry ? { name: toolEntry.data.title, url: toolEntry.data.url, icon: toolEntry.data.icon } : null;
+    }
+    return item;
+  })
+  .filter(Boolean);
+
+let exemplesRaw = exemples;
+if (typeof exemplesRaw === 'string') {
+  try {
+    exemplesRaw = JSON.parse(exemplesRaw);
+  } catch (_) {
+    exemplesRaw = [];
+  }
+}
+const exemplesList = Array.isArray(exemplesRaw) ? exemplesRaw : [];
+
+const objectifsList = objectifs;
+const PILL_COLORS = [
+  'bg-pink-200 text-pink-800',
+  'bg-violet-200 text-violet-800',
+  'bg-sky-200 text-sky-800',
+  'bg-amber-200 text-amber-800',
+  'bg-emerald-200 text-emerald-800',
+  'bg-rose-200 text-rose-800',
+  'bg-teal-200 text-teal-800',
+  'bg-lime-200 text-lime-800',
+];
+
+const hasTemplates = templatesList.length > 0;
+const hasOutils = outils.length > 0;
+const hasExemples = exemplesList.length > 0;
+const hasIcon = icon && icon.length > 0;
+const iconIsUrl = hasIcon && (icon.startsWith('http://') || icon.startsWith('https://'));
+const coverImage = entry.data.image;
+const hasCover = coverImage && coverImage.startsWith('http');
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-white text-gray-800 antialiased">
+    <!-- Bannière + header avec bouton accueil en haut à gauche -->
+    <header class="relative w-full overflow-hidden">
+      {hasCover ? (
+        <img
+          src={coverImage}
+          alt=""
+          class="h-48 w-full object-cover sm:h-56"
+        />
+      ) : (
+        <div class="h-32 w-full bg-guide-beige sm:h-40" />
+      )}
+      <a
+        href="/"
+        class="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition hover:opacity-90 sm:left-6 sm:top-5"
+        style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,240,232,0.9) 100%); box-shadow: 0 1px 3px rgba(0,0,0,0.12);"
+        aria-label="Retour à l'accueil"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M218.83 103.77l-80-75.48a1.14 1.14 0 0 0-.11-.11 16 16 0 0 0-21.53 0l-.11.11-79.91 75.48A16 16 0 0 0 32 115.55V208a16 16 0 0 0 16 16h48a16 16 0 0 0 16-16v-48h32v48a16 16 0 0 0 16 16h48a16 16 0 0 0 16-16v-92.45a16 16 0 0 0-5.17-11.78ZM208 208h-48v-48a16 16 0 0 0-16-16h-32a16 16 0 0 0-16 16v48H48v-92.45l.11-.1L128 40l79.9 75.43.11.1Z"/></svg>
+      </a>
+    </header>
+
+    <div class="mx-auto max-w-6xl px-6 pb-10" style="margin-top: -2.5rem;">
+      <div class="grid grid-cols-1 gap-12 lg:grid-cols-[2fr_7fr]">
+        <!-- Sidebar : icône à cheval sur la bannière (30 % au-dessus), taille généreuse -->
+        <aside class="lg:min-w-0">
+          <div
+            class="relative h-40 w-40 shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-sm"
+            style="margin-top: -3rem;"
+          >
+            {hasIcon ? (
+              iconIsUrl ? (
+                <img
+                  src={icon}
+                  alt=""
+                  class="h-full w-full object-cover"
+                />
+              ) : (
+                <div class="flex h-full w-full items-center justify-center text-7xl">
+                  {icon}
+                </div>
+              )
+            ) : (
+              <div class="flex h-full w-full items-center justify-center bg-guide-sand font-serif text-6xl font-bold text-guide-purple">
+                {title.charAt(0)}
+              </div>
+            )}
+          </div>
+          <div class="mt-6" />
+
+          <!-- Templates (affichée seulement s'il y a des fichiers) -->
+          {hasTemplates && (
+            <section class="mb-8">
+              <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Templates</h2>
+              <ul class="space-y-3">
+                {templatesList.map((t) => (
+                  <li class="flex items-center gap-3">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center text-gray-600" aria-hidden="true">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M213.66 82.34l-56-56A8 8 0 0 0 152 24H56a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16V88a8 8 0 0 0-2.34-5.66ZM160 51.31 188.69 80H160ZM200 216H56V40h88v48a8 8 0 0 0 8 8h48Z"/></svg>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      <a href={t.url} download={t.name} target="_blank" rel="noopener noreferrer" class="text-sm text-gray-700 hover:text-guide-purple">{t.name}</a>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <!-- Outils (affichée seulement s'il y a des outils liés) -->
+          {hasOutils && (
+            <section>
+              <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Outils</h2>
+              <ul class="space-y-3">
+                {outils.map((o) => {
+                  const hasOutilIcon = o.icon && o.icon.length > 0;
+                  const outilIconIsUrl = hasOutilIcon && (o.icon!.startsWith('http://') || o.icon!.startsWith('https://'));
+                  return (
+                  <li class="flex items-center gap-3">
+                    {hasOutilIcon ? (
+                      outilIconIsUrl ? (
+                        <img src={o.icon} alt="" class="h-8 w-8 shrink-0 rounded object-cover" />
+                      ) : (
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-guide-beige text-lg">{o.icon}</span>
+                      )
+                    ) : (
+                      <span class="h-5 w-5 shrink-0 rounded bg-guide-tool" />
+                    )}
+                    <div class="min-w-0 flex-1">
+                      {o.url ? (
+                        <a href={o.url} target="_blank" rel="noopener noreferrer" class="text-sm text-gray-700 hover:text-guide-purple">{o.name}</a>
+                      ) : (
+                        <span class="text-sm text-gray-700">{o.name}</span>
+                      )}
+                    </div>
+                  </li>
+                );})}
+              </ul>
+            </section>
+          )}
+        </aside>
+
+        <!-- Contenu principal : padding-top pour que le titre soit bien dégagé sous la bannière -->
+        <main class="lg:min-w-0 pt-20">
+          <h1 class="font-serif text-4xl font-bold text-guide-purple">{title}</h1>
+          {baseline && (
+            <p class="mt-2 text-base leading-relaxed text-gray-600">{baseline}</p>
+          )}
+          {objectifsList.length > 0 && (
+            <div class="mt-3 flex flex-wrap gap-2">
+              {objectifsList.map((label, i) => (
+                <span
+                  class={`rounded-full px-3 py-1 text-xs font-medium ${PILL_COLORS[i % PILL_COLORS.length]}`}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
+          {category && (
+            <span class="mt-2 inline-block rounded-md bg-guide-tag px-3 py-1 text-sm text-gray-600">{category}</span>
+          )}
+
+          <div class="prose prose-gray mt-8 max-w-none prose-p:leading-relaxed">
+            <Content />
+          </div>
+
+          {hasExemples && (
+            <section class="mt-12">
+              <h2 class="mb-4 text-lg font-semibold text-gray-800">Exemples</h2>
+              <div id="exemples-lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="Aperçu image">
+                <button type="button" class="absolute right-4 top-4 text-white/90 hover:text-white" aria-label="Fermer">✕</button>
+                <img id="exemples-lightbox-img" src="" alt="" class="max-h-[90vh] max-w-full rounded-lg object-contain" />
+              </div>
+              <div class="columns-3 gap-4">
+                {exemplesList.map((url) => (
+                  <button
+                    type="button"
+                    class="break-inside-avoid mb-4 w-full overflow-hidden rounded-lg bg-guide-sand text-left transition hover:opacity-90"
+                    data-exemple-src={url}
+                  >
+                    <img
+                      src={url}
+                      alt=""
+                      class="w-full object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                ))}
+              </div>
+              <script is:inline>
+                (function() {
+                  const overlay = document.getElementById('exemples-lightbox');
+                  const img = document.getElementById('exemples-lightbox-img');
+                  const closeBtn = overlay?.querySelector('button');
+                  function open(src) {
+                    if (!overlay || !img) return;
+                    img.src = src;
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+                    document.body.style.overflow = 'hidden';
+                  }
+                  function close() {
+                    if (!overlay) return;
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                    document.body.style.overflow = '';
+                  }
+                  document.querySelectorAll('[data-exemple-src]').forEach(function(btn) {
+                    btn.addEventListener('click', function() { open(this.dataset.exempleSrc); });
+                  });
+                  overlay?.addEventListener('click', function(e) { if (e.target === overlay) close(); });
+                  closeBtn?.addEventListener('click', close);
+                  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close(); });
+                })();
+              </script>
+            </section>
+          )}
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
