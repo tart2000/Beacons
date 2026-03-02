@@ -15,6 +15,7 @@ const ROOT = join(__dirname, '..');
 const CONTENT_DIR = join(ROOT, 'src', 'content', 'activites');
 const OUTILS_DIR = join(ROOT, 'src', 'content', 'outils');
 const PUBLIC_ACTIVITES = join(ROOT, 'public', 'activites');
+const PUBLIC_ACTIVITES_EXEMPLES = join(ROOT, 'public', 'activites', 'exemples');
 const PUBLIC_OUTILS = join(ROOT, 'public', 'outils');
 
 function isNotionS3Url(url) {
@@ -288,6 +289,7 @@ async function main() {
   mkdirSync(CONTENT_DIR, { recursive: true });
   mkdirSync(OUTILS_DIR, { recursive: true });
   mkdirSync(PUBLIC_ACTIVITES, { recursive: true });
+  mkdirSync(PUBLIC_ACTIVITES_EXEMPLES, { recursive: true });
   mkdirSync(PUBLIC_OUTILS, { recursive: true });
 
   const toolIdToSlug = new Map();
@@ -405,7 +407,26 @@ async function main() {
     if (!body) body = '';
 
     const objectifs = extractObjectifs(page.properties);
-    const exemples = extractExamples(page.properties);
+    let exemples = extractExamples(page.properties);
+    if (exemples.length > 0) {
+      const resolved = [];
+      for (let i = 0; i < exemples.length; i++) {
+        const url = exemples[i];
+        if (isNotionS3Url(url)) {
+          const ext = extFromUrl(url);
+          const localName = `${slug}-${i}.${ext}`;
+          const localPath = join(PUBLIC_ACTIVITES_EXEMPLES, localName);
+          if (await downloadToLocal(url, localPath)) {
+            resolved.push('/activites/exemples/' + localName);
+          } else {
+            resolved.push(url);
+          }
+        } else {
+          resolved.push(url);
+        }
+      }
+      exemples = resolved;
+    }
     const templatesList = extractTemplates(page.properties);
     const baseline = extractBaseline(page.properties);
 

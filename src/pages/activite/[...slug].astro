@@ -242,20 +242,22 @@ const iconSrc = (hasIcon && typeof icon === 'string' && icon.startsWith('/')) ? 
                 <img id="exemples-lightbox-img" src="" alt="" class="max-h-[90vh] max-w-full rounded-lg object-contain" />
               </div>
               <div class="columns-1 md:columns-3 gap-4">
-                {exemplesList.map((url) => (
+                {exemplesList.map((url) => {
+                  const exempleSrc = typeof url === 'string' && url.startsWith('/') ? base + url : ensureHttps(url);
+                  return (
                   <button
                     type="button"
                     class="break-inside-avoid mb-4 w-full overflow-hidden rounded-lg bg-guide-sand text-left transition hover:opacity-90"
-                    data-exemple-src={ensureHttps(url)}
+                    data-exemple-src={exempleSrc}
                   >
                     <img
-                      src={ensureHttps(url)}
+                      src={exempleSrc}
                       alt=""
                       class="w-full object-cover"
                       loading="lazy"
                     />
                   </button>
-                ))}
+                );})}
               </div>
               <script is:inline>
                 (function() {
