@@ -4,7 +4,7 @@ image: "https://images.unsplash.com/photo-1533319417894-6fbb331e5513?ixlib=rb-1.
 icon: "/activites/identite-de-projet-logo-icon.png"
 baseline: "Dessiner l’identité du projet"
 objectifs: ["Communiquer"]
-outils: ["canva","noun-project"]
+outils: ["canva","noun-project","affinity"]
 exemples: ["/activites/exemples/identite-de-projet-logo-0.png","/activites/exemples/identite-de-projet-logo-1.png","/activites/exemples/identite-de-projet-logo-2.png"]
 ---
 

@@ -379,24 +379,69 @@ async function main() {
   }
   console.log('Tools synced:', toolsList.length);
 
-  // Map Notion page_id → { slug, title } pour résoudre les "link to page" vers nos URLs /activite/{slug}
+  // Map Notion page_id → { slug, title, icon } pour résoudre les "link to page" vers nos URLs /activite/{slug}
   const pageIdToLink = new Map();
   for (const page of results) {
     if (page.object !== 'page') continue;
     const id = page.id.replace(/-/g, '');
     const title = extractTitle(page.properties);
-    pageIdToLink.set(id, { slug: slugify(title), title });
+    const slug = slugify(title);
+    const rawIcon = getIcon(page);
+
+    let icon = null;
+    if (typeof rawIcon === 'string') {
+      if (isNotionS3Url(rawIcon)) {
+        const ext = extFromUrl(rawIcon);
+        icon = `/activites/${slug}-icon.${ext}`;
+      } else {
+        icon = rawIcon;
+      }
+    }
+
+    pageIdToLink.set(id, { slug, title, icon });
   }
 
   n2m.setCustomTransformer('link_to_page', (block) => {
     if (block.link_to_page?.type !== 'page_id') return '[Lien](https://www.notion.so)';
     const pageId = block.link_to_page.page_id?.replace(/-/g, '');
     const info = pageIdToLink.get(pageId);
-    if (info) {
-      const text = info.title.replace(/\]/g, '\\]');
-      return `[${text}](/activite/${info.slug})`;
+    if (!info) {
+      return `[Lien](https://www.notion.so/${block.link_to_page.page_id})`;
     }
-    return `[Lien](https://www.notion.so/${block.link_to_page.page_id})`;
+
+    const text = info.title.replace(/\]/g, '\\]');
+    const href = `/activite/${info.slug}`;
+
+    let iconHtml = '';
+    if (info.icon && typeof info.icon === 'string' && info.icon.startsWith('/')) {
+      iconHtml = `<img src="${info.icon}" alt="" class="h-9 w-9 rounded-lg object-cover bg-gray-200" />`;
+    } else if (info.icon) {
+      iconHtml = `<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-200 text-lg">${info.icon}</div>`;
+    } else {
+      iconHtml = `<div class="h-9 w-9 rounded-lg bg-gray-200" aria-hidden="true"></div>`;
+    }
+
+    const externalIcon = `
+<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+  <path d="M14 3h7v7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M10 14L21 3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M5 5h5M5 5v14h14v-5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+    return `
+<div class="my-4">
+  <a href="${href}" class="group flex w-full items-center gap-3 rounded-xl bg-gray-100 px-4 py-3 text-gray-800 no-underline transition hover:bg-gray-200">
+    ${iconHtml}
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-medium leading-snug group-hover:text-guide-purple truncate">${text}</div>
+      <div class="mt-0.5 text-xs text-gray-500">Voir l’activité</div>
+    </div>
+    <div class="ml-2 shrink-0" aria-hidden="true">
+      ${externalIcon}
+    </div>
+  </a>
+</div>
+    `.trim();
   });
 
   const allowedSlugs = new Set();

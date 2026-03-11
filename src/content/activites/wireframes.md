@@ -4,7 +4,7 @@ image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?ixlib=rb-1.
 icon: "/activites/wireframes-icon.jpg"
 baseline: "Poser les grandes lignes d'une application ou d'un site Internet"
 objectifs: ["Concevoir"]
-outils: ["whimsical","figma"]
+outils: ["whimsical","figma","moqups"]
 exemples: ["/activites/exemples/wireframes-0.png","/activites/exemples/wireframes-1.png","/activites/exemples/wireframes-2.png","/activites/exemples/wireframes-3.png","/activites/exemples/wireframes-4.png","/activites/exemples/wireframes-5.png","/activites/exemples/wireframes-6.png","/activites/exemples/wireframes-7.png"]
 ---
 

@@ -4,7 +4,7 @@ image: "https://images.unsplash.com/photo-1768756744992-23901263bb0e?ixlib=rb-4.
 icon: "/activites/affiche-flyer-icon.png"
 baseline: "Cristalliser l'identité du projet et déclencher une action immédiate."
 objectifs: ["Communiquer"]
-outils: ["canva"]
+outils: ["canva","affinity"]
 exemples: ["/activites/exemples/affiche-flyer-0.png"]
 ---
 
@@ -31,7 +31,7 @@ Ne cherchez pas à tout dire. Si un flyer contient 10 paragraphes, personne ne l
 - **Le message clé :** Quelle est la promesse principale ? (ex: "Réduisez votre facture d'énergie de 30%").
 - **Le** _**Tone of Voice**_ **:** Ton projet est-il institutionnel (bleu, polices droites), créatif (couleurs vives, typographies grasses) ou minimaliste ? Ton visuel _doit_ faire ressentir l'âme du projet avant même qu'on lise le premier mot.
 
-[Tone of Voice](/activite/tone-of-voice)
+[Lien](https://www.notion.so/2f09f533-b7e6-8027-8600-f737e7848149)
 
 
 ### 2. Appliquer la règle AIDA

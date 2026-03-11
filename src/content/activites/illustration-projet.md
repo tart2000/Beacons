@@ -4,7 +4,7 @@ image: "https://images.unsplash.com/photo-1506585345028-d9d1525ecb21?ixlib=rb-1.
 icon: "/activites/illustration-projet-icon.jpg"
 baseline: "Mobiliser votre audience et rendre votre concept tangible par l'image."
 objectifs: ["Communiquer"]
-outils: ["canva","figma","icons8","unsplash","undraw","noun-project"]
+outils: ["canva","figma","icons8","unsplash","undraw","noun-project","affinity"]
 exemples: ["/activites/exemples/illustration-projet-0.png","/activites/exemples/illustration-projet-1.png","/activites/exemples/illustration-projet-2.png","/activites/exemples/illustration-projet-3.png","/activites/exemples/illustration-projet-4.png","/activites/exemples/illustration-projet-5.png","/activites/exemples/illustration-projet-6.png"]
 ---
 
@@ -39,7 +39,7 @@ Rendez-vous sur **Canva**. Ne cherchez pas le template "parfait", mais celui don
 
 - Adaptez les couleurs et les polices pour respecter votre **Tone of Voice**.
 
-[Tone of Voice](/activite/tone-of-voice)
+[Lien](https://www.notion.so/2f09f533-b7e6-8027-8600-f737e7848149)
 
 
 ### 4. Recherche de visuels (images & icônes)
