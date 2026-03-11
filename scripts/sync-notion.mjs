@@ -414,11 +414,11 @@ async function main() {
 
     let iconHtml = '';
     if (info.icon && typeof info.icon === 'string' && info.icon.startsWith('/')) {
-      iconHtml = `<img src="${info.icon}" alt="" class="h-9 w-9 rounded-lg object-cover bg-gray-200" />`;
+      iconHtml = `<img src="${info.icon}" alt="" class="h-10 w-10 rounded-xl object-cover bg-gray-200" />`;
     } else if (info.icon) {
-      iconHtml = `<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-200 text-lg">${info.icon}</div>`;
+      iconHtml = `<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-200 text-xl">${info.icon}</div>`;
     } else {
-      iconHtml = `<div class="h-9 w-9 rounded-lg bg-gray-200" aria-hidden="true"></div>`;
+      iconHtml = `<div class="h-10 w-10 rounded-xl bg-gray-200" aria-hidden="true"></div>`;
     }
 
     const externalIcon = `
@@ -429,11 +429,11 @@ async function main() {
 </svg>`;
 
     return `
-<div class="my-4">
-  <a href="${href}" class="group flex w-full items-center gap-3 rounded-xl bg-gray-100 px-4 py-3 text-gray-800 no-underline transition hover:bg-gray-200">
+<div class="my-3">
+  <a href="${href}" class="group flex w-full items-center gap-3 rounded-xl bg-gray-100 px-4 py-2 text-gray-800 no-underline transition hover:bg-gray-200">
     ${iconHtml}
     <div class="flex-1 min-w-0">
-      <div class="text-sm font-medium leading-snug group-hover:text-guide-purple truncate">${text}</div>
+      <div class="text-base font-medium leading-snug group-hover:text-guide-purple truncate">${text}</div>
       <div class="mt-0.5 text-xs text-gray-500">Voir l’activité</div>
     </div>
     <div class="ml-2 shrink-0" aria-hidden="true">
