@@ -429,11 +429,11 @@ async function main() {
 </svg>`;
 
     return `
-<div class="my-3">
-  <a href="${href}" class="group flex w-full items-center gap-3 rounded-xl bg-gray-100 px-4 py-2 text-gray-800 no-underline transition hover:bg-gray-200">
+<div class="not-prose my-2">
+  <a href="${href}" class="group flex w-full items-center gap-3 rounded-xl bg-gray-100 px-4 py-1 text-gray-800 no-underline transition hover:bg-gray-200">
     ${iconHtml}
     <div class="flex-1 min-w-0">
-      <div class="text-base font-medium leading-snug group-hover:text-guide-purple truncate">${text}</div>
+      <div class="text-lg font-medium leading-snug group-hover:text-guide-purple truncate">${text}</div>
       <div class="mt-0.5 text-xs text-gray-500">Voir l’activité</div>
     </div>
     <div class="ml-2 shrink-0" aria-hidden="true">
