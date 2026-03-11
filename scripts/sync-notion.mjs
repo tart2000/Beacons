@@ -430,7 +430,7 @@ async function main() {
 
     return `
 <div class="not-prose my-2">
-  <a href="${href}" class="group flex w-full items-center gap-3 rounded-xl bg-gray-100 px-4 py-1 text-gray-800 no-underline transition hover:bg-gray-200">
+  <a href="${href}" class="group flex w-full items-center gap-3 rounded-xl bg-gray-100 px-4 py-2 text-gray-800 no-underline transition hover:bg-gray-200">
     ${iconHtml}
     <div class="flex-1 min-w-0">
       <div class="text-lg font-medium leading-snug group-hover:text-guide-purple truncate">${text}</div>
