@@ -33,6 +33,60 @@ function extFromUrl(url) {
   }
 }
 
+function sanitizeFilenameSegment(text) {
+  return String(text || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Parcourt le markdown pour trouver les images Notion (`![](...)`) dont l'URL est une URL S3 Notion
+ * puis les télécharge dans un dossier public dédié et remplace les URLs dans le markdown par des chemins locaux.
+ */
+async function localizeInlineImagesInMarkdown(markdown, { slug, publicDir, publicBasePath }) {
+  if (!markdown || typeof markdown !== 'string') return markdown;
+  if (!markdown.includes('![')) return markdown;
+
+  const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  let match;
+  let result = markdown;
+  const replacements = [];
+
+  let index = 0;
+  while ((match = imageRegex.exec(markdown)) !== null) {
+    const fullMatch = match[0];
+    const alt = match[1] || '';
+    const url = match[2] || '';
+    if (!isNotionS3Url(url)) continue;
+
+    const safeSlug = sanitizeFilenameSegment(slug);
+    const safeAlt = sanitizeFilenameSegment(alt) || 'image';
+    const ext = extFromUrl(url);
+    const localName = `${safeSlug}-${safeAlt}-${index}.${ext}`;
+    const localPath = join(publicDir, localName);
+    const publicUrl = `${publicBasePath}/${localName}`;
+
+    // On tente de télécharger; si échec, on garde l'URL d'origine
+    // pour ne pas casser encore plus le contenu.
+    // eslint-disable-next-line no-await-in-loop
+    const ok = await downloadToLocal(url, localPath);
+    if (ok) {
+      replacements.push({ from: fullMatch, to: `![${alt}](${publicUrl})` });
+      index += 1;
+    }
+  }
+
+  for (const { from, to } of replacements) {
+    result = result.split(from).join(to);
+  }
+
+  return result;
+}
+
 async function downloadToLocal(url, filepath) {
   try {
     const res = await fetch(url, { redirect: 'follow' });
@@ -405,6 +459,13 @@ async function main() {
       console.warn('Could not fetch content for', title, ':', e.message);
     }
     if (!body) body = '';
+
+    // Localiser les images Notion inline dans le contenu markdown (corps de la page)
+    body = await localizeInlineImagesInMarkdown(body, {
+      slug,
+      publicDir: join(PUBLIC_ACTIVITES, 'contenu'),
+      publicBasePath: '/activites/contenu',
+    });
 
     const objectifs = extractObjectifs(page.properties);
     let exemples = extractExamples(page.properties);
